@@ -1,7 +1,7 @@
 const quizData = [
 {q:`Który z poniższych modeli obrazuje ewolucję od surowych faktów do głębokiego zrozumienia i zdolności podejmowania decyzji?`,o:[`Model SIZ`,`Hierarchia DIKW`,`Model procesu workflow`,`Model ISO 25012`],a:[1]},
 {q:`Czym w hierarchii DIKW charakteryzują się „Dane" (Data)?`,o:[`Są zinterpretowane i mają nadany kontekst`,`Są surowymi faktami, liczbami i symbolami bez samoistnego znaczenia`,`Wywodzą się wyłącznie od ludzi i służą do rozwiązywania problemów`,`Są skumulowaną wiedzą o życiu wynikającą z doświadczenia`],a:[1]},
-{q:`Które z poniższych stwierdzeń dotyczących „Informacji" w ujęciu IT są prawdziwe?`,o:[`Jest to wynik przetwarzania danych (symbole/obrazy -> przetwarzanie -> informacja)`,`Jest to surowy fakt niepodatny na interpretację`,`Jest to wiadomość zmniejszająca niepewność odbiorcy`,`Jest to synonim mądrości w systemach eksperckich`],a:[0,2]},
+{q:`Które z poniższych stwierdzeń dotyczących „Informacji" w ujęciu IT są prawdziwe?`,o:[`Jest to wynik przetwarzania danych (symbole/obrazy -> przetwarzanie -> informacja)`,`Jest to surowy fakt niepodatny na interpretację`,`Jest to wiadomość zmniejszająca niepewność odbiorcy`,`Jest to synonim mądrości w systemach eksperckich`],a:[0]},
 {q:`W jakim wymiarze rozpatrywana jest informacja, gdy analizujemy jej użyteczność i wartość dla odbiorcy ze względu na realizowany cel?`,o:[`Semantycznym`,`Syntaktycznym`,`Pragmatycznym`,`Technicznym`],a:[2]},
 {q:`Co oznacza wymiar syntaktyczny informacji?`,o:[`Znaczenie i zawartość treściową wiadomości`,`Ilość informacji potencjalnie zawartą w wiadomości (składnia)`,`Wartość ekonomiczną informacji jako towaru`,`Poziom zabezpieczeń kryptograficznych danych`],a:[1]},
 {q:`Które z poniższych są wymienione w materiałach jako atrybuty jakości informacji?`,o:[`Prawdziwość i Aktualność`,`Wiarygodność i Relewancja`,`Użyteczność i Przyswajalność`,`Wszystkie powyższe`],a:[3]},
@@ -792,4 +792,5 @@ o: [
 ],
 a: [1]
 }
+
 ];
