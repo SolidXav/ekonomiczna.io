@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test ABCD - Losowe Pytania</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .start-screen p {
+            color: #555;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-width: 150px;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .quiz-container {
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-number {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .question {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .answers-container {
+            display: grid;
+            gap: 12px;
+        }
+
+        .answer-option {
+            position: relative;
+            display: none;
+        }
+
+        .answer-option input[type="radio"],
+        .answer-option input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .answer-label {
+            display: block;
+            padding: 15px 20px;
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1em;
+            color: #333;
+        }
+
+        .answer-option input[type="radio"]:checked + .answer-label,
+        .answer-option input[type="checkbox"]:checked + .answer-label {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            font-weight: 600;
+        }
+
+        .answer-label:hover {
+            background: #efefef;
+            border-color: #667eea;
+        }
+
+        .answer-letter {
+            font-weight: 700;
+            margin-right: 8px;
+            color: #667eea;
+        }
+
+        .answer-option input[type="radio"]:checked + .answer-label .answer-letter,
+        .answer-option input[type="checkbox"]:checked + .answer-label .answer-letter {
+            color: white;
+        }
+
+        .answer-option.correct .answer-label {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+            font-weight: 600;
+        }
+
+        .answer-option.correct .answer-letter {
+            color: white;
+        }
+
+        .answer-option.correct .answer-label::after {
+            content: " ✓";
+            font-weight: 700;
+        }
+
+        .answer-option.incorrect .answer-label {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+            font-weight: 600;
+        }
+
+        .answer-option.incorrect .answer-letter {
+            color: white;
+        }
+
+        .answer-option.incorrect .answer-label::after {
+            content: " ✗";
+            font-weight: 700;
+        }
+
+        .answer-option.disabled input,
+        .answer-option.disabled .answer-label {
+            pointer-events: none;
+        }
+
+        .feedback-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .feedback-correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .feedback-incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            align-items: center;
+        }
+
+        .btn-nav {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #e0e0e0;
+            min-width: 120px;
+        }
+
+        .btn-nav:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-nav:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-menu {
+            background: linear-gradient(135deg, #ff9f43 0%, #ee5a6f 100%);
+            color: white;
+            border: 2px solid #ff9f43;
+            font-weight: 600;
+        }
+
+        .btn-menu:hover {
+            background: linear-gradient(135deg, #ff8c2a 0%, #dd3d54 100%);
+            border-color: #ff8c2a;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-width: 150px;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .score {
+            font-size: 3em;
+            color: #667eea;
+            font-weight: 700;
+            margin: 20px 0;
+        }
+
+        .results-message {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .results-details {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .warning {
+            background: #fff3cd;
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: #856404;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .question {
+                font-size: 1.1em;
+            }
+
+            .answer-label {
+                padding: 12px 15px;
+                font-size: 0.95em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Test ABCD</h1>
+            <p>Losowe pytania z losową kolejnością odpowiedzi</p>
+        </div>
+
+        <!-- Ekran startowy -->
+        <div class="start-screen" id="startScreen">
+            <p>Witaj w teście wielokrotnego wyboru!</p>
+            <p><strong>Liczba pytań w bazie:</strong> <span id="totalQuestions">0</span></p>
+            <p style="color: #999; font-size: 0.9em;">Każde pytanie będzie miało randomizowaną kolejność odpowiedzi, aby uniknąć zapamiętywania pozycji poprawnej odpowiedzi.</p>
+            <div class="button-group">
+                <button class="btn-start" onclick="startQuiz(10)">Test 10 pytań</button>
+                <button class="btn-start" onclick="startQuiz(20)">Test 20 pytań</button>
+                <button class="btn-start" onclick="startQuiz(30)">Test 30 pytań</button>
+                <button class="btn-start" onclick="startQuiz(0)">Test wszystkich</button>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="quiz-container" id="quizContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="question-number" id="questionNumber"></div>
+            <div class="question" id="questionText"></div>
+
+            <div class="answers-container" id="answersContainer"></div>
+
+            <div class="navigation">
+                <button type="button" class="btn-nav" id="btnPrevious" onclick="previousQuestion()" disabled>← Poprzednie</button>
+                <button type="button" class="btn-nav btn-menu" onclick="returnToMenu()">🏠 Menu</button>
+                <button type="button" class="btn-nav" id="btnNext" onclick="nextQuestion()">Następne →</button>
+                <button type="button" class="btn-submit" id="btnSubmit" onclick="submitQuiz()">Wyślij test</button>
+            </div>
+        </div>
+
+        <!-- Wyniki -->
+        <div class="results-screen" id="resultsScreen">
+            <div class="results-message" id="resultMessage"></div>
+            <div class="score" id="scoreDisplay"></div>
+            <div class="results-details" id="resultsDetails"></div>
+            <div class="button-group">
+                <button class="btn-start" onclick="location.reload()">Nowy test</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="pytania.js"></script>
+    <script>
+        let currentQuestion = 0;
+        let selectedAnswers = {};
+        let shuffledQuestions = [];
+        let questionMap = {}; // Mapuje pytanie na zamienione indeksy odpowiedzi
+        let totalQuestionsInTest = 0;
+        let answeredQuestions = {}; // Czy już odpowiedziano na pytanie
+
+        // Inicjalizacja
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('totalQuestions').textContent = quizData.length;
+        });
+
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function startQuiz(numQuestions) {
+            totalQuestionsInTest = numQuestions === 0 ? quizData.length : Math.min(numQuestions, quizData.length);
+            
+            // Losujemy pytania
+            let availableIndices = Array.from({length: quizData.length}, (_, i) => i);
+            availableIndices = shuffleArray(availableIndices);
+            
+            shuffledQuestions = availableIndices.slice(0, totalQuestionsInTest).map(i => quizData[i]);
+            selectedAnswers = {};
+            answeredQuestions = {};
+            currentQuestion = 0;
+            questionMap = {};
+
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('resultsScreen').style.display = 'none';
+
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            const question = shuffledQuestions[currentQuestion];
+            const questionIndex = currentQuestion + 1;
+
+            // Aktualizuj progress
+            const progress = (currentQuestion / totalQuestionsInTest) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('questionNumber').textContent = `Pytanie ${questionIndex} z ${totalQuestionsInTest}`;
+
+            // Wyświetl pytanie
+            document.getElementById('questionText').textContent = question.q;
+
+            // Losujemy kolejność odpowiedzi
+            const originalIndices = Array.from({length: question.o.length}, (_, i) => i);
+            const shuffledIndices = shuffleArray(originalIndices);
+            questionMap[currentQuestion] = shuffledIndices;
+
+            // Wyświetl odpowiedzi w losowej kolejności
+            const answersHtml = shuffledIndices.map((originalIndex, idx) => {
+                const answer = question.o[originalIndex];
+                const isMultiple = question.a.length > 1;
+                const inputType = isMultiple ? 'checkbox' : 'radio';
+                const inputName = isMultiple ? `q${currentQuestion}_${idx}` : `q${currentQuestion}`;
+                const selected = selectedAnswers[currentQuestion]?.includes(originalIndex) ? 'checked' : '';
+
+                return `
+                    <div class="answer-option">
+                        <input type="${inputType}" id="answer${idx}" name="${inputName}" value="${originalIndex}" ${selected}>
+                        <label for="answer${idx}" class="answer-label">
+                            <span class="answer-letter">${String.fromCharCode(65 + idx)}</span>
+                            ${answer}
+                        </label>
+                    </div>
+                `;
+            }).join('');
+
+            const container = document.getElementById('answersContainer');
+            container.innerHTML = answersHtml;
+
+            // Usuń stary feedback
+            const oldFeedback = container.parentElement.querySelector('.feedback-message');
+            if (oldFeedback) {
+                oldFeedback.remove();
+            }
+
+            // Dodaj event listenery
+            const isMultiple = question.a.length > 1;
+            container.querySelectorAll('input').forEach(input => {
+                input.addEventListener('change', () => checkAnswer());
+            });
+
+            // Pokaż/ukryj wszystkie odpowiedzi
+            container.querySelectorAll('.answer-option').forEach(el => {
+                el.style.display = 'block';
+            });
+
+            // Jeśli pytanie już zostało odpowiedziane, pokaż feedback
+            if (answeredQuestions[currentQuestion]) {
+                showFeedback();
+            }
+
+            // Aktualizuj przyciski
+            document.getElementById('btnPrevious').disabled = currentQuestion === 0;
+            
+            // Przycisk Dalej jest disabled dopóki nie odpowiemy na pytanie
+            const btnNext = document.getElementById('btnNext');
+            if (answeredQuestions[currentQuestion]) {
+                btnNext.disabled = false;
+            } else {
+                btnNext.disabled = true;
+            }
+            
+            btnNext.style.display = currentQuestion === totalQuestionsInTest - 1 ? 'none' : 'block';
+            
+            // Przycisk Submit pojawia się na ostatnim pytaniu
+            const btnSubmit = document.getElementById('btnSubmit');
+            btnSubmit.style.display = currentQuestion === totalQuestionsInTest - 1 ? 'block' : 'none';
+            // Na ostatnim pytaniu przycisk zawsze jest aktywny - alert sprawdzi czy odpowiedziano
+        }
+
+        function checkAnswer() {
+            const question = shuffledQuestions[currentQuestion];
+            const isMultiple = question.a.length > 1;
+            
+            if (isMultiple) {
+                const checked = Array.from(document.querySelectorAll(`input[type="checkbox"]:checked`))
+                    .map(input => parseInt(input.value));
+                selectedAnswers[currentQuestion] = checked;
+            } else {
+                const checked = document.querySelector(`input[type="radio"]:checked`);
+                selectedAnswers[currentQuestion] = checked ? [parseInt(checked.value)] : [];
+            }
+
+            // Pokaż feedback
+            answeredQuestions[currentQuestion] = true;
+            showFeedback();
+        }
+
+        function showFeedback() {
+            const question = shuffledQuestions[currentQuestion];
+            const userAnswers = selectedAnswers[currentQuestion] || [];
+            const correctAnswers = question.a;
+            const shuffleMap = questionMap[currentQuestion];
+
+            // Sprawdzanie czy odpowiedzi są prawidłowe (dokładne dopasowanie)
+            const isCorrect = userAnswers.length === correctAnswers.length &&
+                userAnswers.every(ans => correctAnswers.includes(ans));
+
+            const container = document.getElementById('answersContainer');
+
+            // Oznacz wszystkie opcje
+            container.querySelectorAll('.answer-option').forEach((option, idx) => {
+                const originalIndex = shuffleMap[idx];
+                option.classList.remove('correct', 'incorrect', 'disabled');
+                option.querySelector('input').disabled = true;
+                option.querySelector('.answer-label').classList.add('disabled');
+
+                if (correctAnswers.includes(originalIndex)) {
+                    // To jest poprawna odpowiedź
+                    option.classList.add('correct');
+                }
+
+                if (userAnswers.includes(originalIndex) && !correctAnswers.includes(originalIndex)) {
+                    // Użytkownik wybrał błędnie
+                    option.classList.add('incorrect');
+                }
+            });
+
+            // Pokaż wiadomość feedback
+            let feedbackHtml = '';
+            if (isCorrect) {
+                feedbackHtml = '<div class="feedback-message feedback-correct">✓ Poprawnie!</div>';
+            } else {
+                const correctAnswersText = correctAnswers.map(ans => question.o[ans]).join(', ');
+                feedbackHtml = `<div class="feedback-message feedback-incorrect">✗ Błędnie! Prawidłowa odpowiedź to: ${correctAnswersText}</div>`;
+            }
+
+            // Usuń stary feedback jeśli istnieje
+            const oldFeedback = container.parentElement.querySelector('.feedback-message');
+            if (oldFeedback) {
+                oldFeedback.remove();
+            }
+
+            // Dodaj nowy feedback
+            container.insertAdjacentHTML('afterend', feedbackHtml);
+
+            // Aktywuj przycisk "Następne" lub "Wyślij test" na ostatnim pytaniu
+            if (currentQuestion === totalQuestionsInTest - 1) {
+                document.getElementById('btnSubmit').disabled = false;
+            } else {
+                document.getElementById('btnNext').disabled = false;
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < totalQuestionsInTest - 1) {
+                currentQuestion++;
+                displayQuestion();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function returnToMenu() {
+            if (confirm('Czy na pewno chcesz powrócić do menu głównego? Twoje odpowiedzi zostaną utracone.')) {
+                document.getElementById('startScreen').style.display = 'block';
+                document.getElementById('quizContainer').style.display = 'none';
+                document.getElementById('resultsScreen').style.display = 'none';
+                
+                currentQuestion = 0;
+                selectedAnswers = {};
+                answeredQuestions = {};
+                questionMap = {};
+                shuffledQuestions = [];
+                
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function submitQuiz() {
+            // Obliczanie wyniku
+            let correctCount = 0;
+            let resultsDetails = [];
+
+            shuffledQuestions.forEach((question, idx) => {
+                const userAnswers = selectedAnswers[idx] || [];
+                const correctAnswers = question.a;
+                
+                // Sprawdzanie czy odpowiedzi są prawidłowe (dokładne dopasowanie)
+                const isCorrect = userAnswers.length === correctAnswers.length &&
+                    userAnswers.every(ans => correctAnswers.includes(ans));
+
+                if (isCorrect) {
+                    correctCount++;
+                }
+
+                // Szczegóły odpowiedzi
+                const shuffleMap = questionMap[idx];
+                const userAnswersText = userAnswers.map(ans => 
+                    question.o[ans]
+                ).join(', ');
+                
+                const correctAnswersText = correctAnswers.map(ans => 
+                    question.o[ans]
+                ).join(', ');
+
+                resultsDetails.push({
+                    question: question.q,
+                    userAnswers: userAnswersText || '(brak odpowiedzi)',
+                    correctAnswers: correctAnswersText,
+                    isCorrect: isCorrect
+                });
+            });
+
+            // Wyświetl wyniki
+            displayResults(correctCount, resultsDetails);
+        }
+
+        function displayResults(correctCount, details) {
+            const percentage = Math.round((correctCount / totalQuestionsInTest) * 100);
+            
+            let message = '';
+            if (percentage === 100) {
+                message = '🎉 Doskonale!';
+            } else if (percentage >= 80) {
+                message = '😊 Bardzo dobrze!';
+            } else if (percentage >= 60) {
+                message = '👍 Niezle!';
+            } else if (percentage >= 40) {
+                message = '📚 Trzeba powtórzyć!';
+            } else {
+                message = '💪 Sporo do nauki!';
+            }
+
+            document.getElementById('resultMessage').textContent = message;
+            document.getElementById('scoreDisplay').textContent = `${correctCount}/${totalQuestionsInTest}`;
+
+            let detailsHtml = `<p><strong>Procent: ${percentage}%</strong></p><p style="text-align: left; margin-top: 20px;">`;
+            
+            details.forEach((detail, idx) => {
+                const status = detail.isCorrect ? '✓' : '✗';
+                const statusColor = detail.isCorrect ? 'color: green;' : 'color: red;';
+                detailsHtml += `
+                    <div style="margin-bottom: 15px; padding: 10px; background: white; border-radius: 5px;">
+                        <div style="${statusColor} font-weight: bold;">${status} Pytanie ${idx + 1}</div>
+                        <div style="font-size: 0.9em; margin-top: 5px;">
+                            <div><strong>Pytanie:</strong> ${detail.question}</div>
+                            <div style="margin-top: 5px;"><strong>Twoja odpowiedź:</strong> ${detail.userAnswers}</div>
+                            <div style="margin-top: 5px;"><strong>Prawidłowa odpowiedź:</strong> ${detail.correctAnswers}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            detailsHtml += '</p>';
+            document.getElementById('resultsDetails').innerHTML = detailsHtml;
+
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsScreen').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
